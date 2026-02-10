@@ -346,6 +346,19 @@ class User extends Authenticatable
     }
 
     /**
+     * التحقق من وجود أي صلاحية من القائمة
+     */
+    public function hasAnyPermission(...$permissionNames): bool
+    {
+        foreach ($permissionNames as $name) {
+            if ($this->hasPermission($name)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
      * التحقق من وجود دور معين
      */
     public function hasRole($roleName)

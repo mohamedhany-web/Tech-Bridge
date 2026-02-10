@@ -76,7 +76,7 @@ class AdvancedExam extends Model
     public function questions()
     {
         return $this->belongsToMany(Question::class, 'exam_questions', 'exam_id', 'question_id')
-                    ->withPivot(['order', 'points'])
+                    ->withPivot(['order', 'marks', 'points'])
                     ->orderBy('exam_questions.order');
     }
 

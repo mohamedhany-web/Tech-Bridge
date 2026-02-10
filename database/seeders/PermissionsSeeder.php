@@ -81,6 +81,7 @@ class PermissionsSeeder extends Seeder
             ['name' => 'instructor.manage.exams', 'display_name' => 'إدارة اختباراتي', 'description' => 'إدارة الامتحانات الخاصة بالمدرب', 'group' => 'صلاحيات المدرب'],
             ['name' => 'instructor.manage.attendance', 'display_name' => 'إدارة الحضور', 'description' => 'إدارة الحضور والانصراف', 'group' => 'صلاحيات المدرب'],
             ['name' => 'instructor.view.tasks', 'display_name' => 'عرض مهامي', 'description' => 'عرض المهام الخاصة بالمدرب', 'group' => 'صلاحيات المدرب'],
+            ['name' => 'instructor.manage.question-bank', 'display_name' => 'بنك أسئلتي', 'description' => 'إنشاء وإدارة بنك الأسئلة الخاص بالمدرب لاستخدامه في الاختبارات', 'group' => 'صلاحيات المدرب'],
 
             // صلاحيات الطالب
             ['name' => 'student.view.courses', 'display_name' => 'تصفح الكورسات', 'description' => 'تصفح الكورسات المتاحة', 'group' => 'صلاحيات الطالب'],

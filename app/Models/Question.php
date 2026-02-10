@@ -71,27 +71,46 @@ class Question extends Model
     }
 
     /**
+     * الحصول على الإجابة الصحيحة كمصفوفة (لا تُرجع أبداً null)
+     */
+    public function getCorrectAnswerArrayAttribute(): array
+    {
+        $value = $this->attributes['correct_answer'] ?? null;
+        if ($value === null || $value === '') {
+            return [];
+        }
+        if (is_array($this->correct_answer)) {
+            return $this->correct_answer;
+        }
+        return is_string($value) ? (array) json_decode($value, true) : [];
+    }
+
+    /**
      * التحقق من صحة الإجابة
      */
     public function isCorrectAnswer($answer)
     {
-        if ($this->type === 'multiple_choice') {
-            return $answer === $this->correct_answer;
+        $correct = $this->correct_answer ?? [];
+        $correctArray = is_array($correct) ? $correct : $this->correct_answer_array;
+
+        if ($this->type === 'multiple_choice' || $this->type === 'true_false') {
+            $expected = $correctArray[0] ?? null;
+            if ($expected === null) {
+                return null;
+            }
+            return $this->type === 'true_false'
+                ? strtolower(trim((string) $answer)) === strtolower(trim((string) $expected))
+                : $answer === $expected;
         }
-        
-        if ($this->type === 'true_false') {
-            return strtolower($answer) === strtolower($this->correct_answer);
-        }
-        
+
         if ($this->type === 'fill_blank') {
-            $correctAnswers = is_array($this->correct_answer) 
-                ? $this->correct_answer 
-                : [$this->correct_answer];
-            
-            return in_array(strtolower(trim($answer)), array_map('strtolower', $correctAnswers));
+            if (empty($correctArray)) {
+                return null;
+            }
+            return in_array(strtolower(trim((string) $answer)), array_map('strtolower', array_map('trim', $correctArray)));
         }
-        
-        // للأسئلة المقالية، نحتاج تقييم يدوي
+
+        // للأسئلة المقالية والإجابة القصيرة، نحتاج تقييماً يدوياً
         return null;
     }
 

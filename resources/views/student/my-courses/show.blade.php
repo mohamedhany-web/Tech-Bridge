@@ -137,6 +137,34 @@
                 </nav>
             </div>
 
+            <!-- توضيح الفرق بين الدروس والمحاضرات -->
+            <div class="mx-6 mt-4 p-4 bg-sky-50 dark:bg-sky-900/20 border border-sky-200 dark:border-sky-800 rounded-xl">
+                <h4 class="text-sm font-semibold text-sky-900 dark:text-sky-200 mb-2 flex items-center">
+                    <i class="fas fa-lightbulb ml-2"></i>
+                    ما الفرق بين الدروس والمحاضرات؟
+                </h4>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-sky-800 dark:text-sky-300">
+                    <div class="flex gap-3">
+                        <span class="flex-shrink-0 w-8 h-8 bg-sky-200 dark:bg-sky-800 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-book text-sky-600 dark:text-sky-400"></i>
+                        </span>
+                        <div>
+                            <strong class="block text-sky-900 dark:text-sky-100">الدروس:</strong>
+                            محتوى مسجل ومنهج مرتب (فيديوهات، نصوص). تتابع الدروس بالترتيب وتكمل كل درس لفتح التالي. يمكنك مشاهدتها في أي وقت.
+                        </div>
+                    </div>
+                    <div class="flex gap-3">
+                        <span class="flex-shrink-0 w-8 h-8 bg-sky-200 dark:bg-sky-800 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-chalkboard-teacher text-sky-600 dark:text-sky-400"></i>
+                        </span>
+                        <div>
+                            <strong class="block text-sky-900 dark:text-sky-100">المحاضرات:</strong>
+                            جلسات مباشرة أو مجدولة مع المدرب (مثل Microsoft Teams). يوجد رابط للانضمام في موعد المحاضرة، وبعد انتهائها قد يُرفع تسجيل للمشاهدة.
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <!-- Tab Content -->
             <div class="p-6">
                 <!-- Overview Tab -->

@@ -488,7 +488,12 @@
                 </li>
             @endhasAnyPermission
 
-            @hasAnyPermission('instructor.view.courses', 'instructor.manage.lectures', 'instructor.manage.groups', 'instructor.manage.assignments', 'instructor.manage.exams', 'instructor.manage.attendance', 'instructor.view.tasks')
+            {{-- أدوات المدرب: تظهر للمدربين فقط وليس للأدمن (لوحة الأدمن لإدارة كل شيء فقط) --}}
+            @if(!auth()->user()->isAdmin() && (auth()->user()->hasRole('instructor') || auth()->user()->hasRole('teacher') || auth()->user()->hasAnyPermission('instructor.view.courses', 'instructor.manage.lectures', 'instructor.manage.groups', 'instructor.manage.assignments', 'instructor.manage.exams', 'instructor.manage.attendance', 'instructor.view.tasks', 'instructor.manage.question-bank')))
+                <!-- عنوان قسم المدرب -->
+                <li class="pt-2 pb-1">
+                    <p class="px-4 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">أدوات المدرب</p>
+                </li>
                 <!-- كورساتي -->
                 @hasPermission('instructor.view.courses')
                 <li>
@@ -586,9 +591,25 @@
                     </a>
                 </li>
                 @endhasPermission
-            @endhasAnyPermission
 
-            @hasAnyPermission('student.view.courses', 'student.view.my-courses', 'student.view.orders', 'student.view.invoices', 'student.view.wallet', 'student.view.certificates', 'student.view.achievements', 'student.view.exams', 'student.view.notifications', 'student.view.profile', 'student.view.settings')
+                <!-- بنك أسئلتي (يظهر لجميع المدربين ضمن أدوات المدرب) -->
+                <li>
+                    <a href="{{ route('instructor.question-banks.index') }}" class="flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-300 relative overflow-hidden group {{ request()->routeIs('instructor.question-banks.*') ? 'bg-gradient-to-r from-sky-500 to-sky-600 text-white shadow-lg shadow-sky-500/30' : 'text-gray-700 dark:text-gray-300 hover:bg-gradient-to-r hover:from-sky-50 hover:to-slate-50 dark:hover:from-gray-700 dark:hover:to-gray-800' }}">
+                        <div class="absolute inset-0 bg-gradient-to-r from-sky-400 to-slate-400 opacity-0 group-hover:opacity-10 transition-opacity duration-300"></div>
+                        <i class="fas fa-database w-5 relative z-10 {{ request()->routeIs('instructor.question-banks.*') ? 'text-white' : 'text-sky-600 dark:text-sky-400 group-hover:text-sky-600 dark:group-hover:text-sky-400' }}"></i>
+                        <span class="relative z-10 font-semibold">بنك أسئلتي</span>
+                        @if(request()->routeIs('instructor.question-banks.*'))
+                            <div class="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-sky-400 to-slate-400 rounded-r"></div>
+                        @endif
+                    </a>
+                </li>
+            @endif
+
+            {{-- قسم الطالب: يظهر فقط لمن له دور الطالب (لا يظهر للأدمن أو المدرب) --}}
+            @hasRole('student')
+                <li class="pt-2 pb-1">
+                    <p class="px-4 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">قسم الطالب</p>
+                </li>
                 <!-- تصفح الكورسات -->
                 @hasPermission('student.view.courses')
                 <li>
@@ -754,7 +775,7 @@
                     </a>
                 </li>
                 @endhasPermission
-            @endhasAnyPermission
+            @endif
 
             {{-- تم إزالة دور ولي الأمر - لن يتم عرض هذا القسم --}}
             @if(false)

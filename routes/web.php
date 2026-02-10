@@ -558,6 +558,12 @@ Route::middleware(['auth', 'throttle:60,1'])->group(function () {
         Route::get('/assignments/{assignment}/submissions', [\App\Http\Controllers\Instructor\AssignmentController::class, 'submissions'])->name('assignments.submissions');
         Route::post('/assignments/{assignment}/grade/{submission}', [\App\Http\Controllers\Instructor\AssignmentController::class, 'grade'])->name('assignments.grade');
         Route::resource('exams', \App\Http\Controllers\Instructor\ExamController::class);
+        Route::get('/question-banks', [\App\Http\Controllers\Instructor\QuestionBankController::class, 'index'])->name('question-banks.index');
+        Route::get('/question-banks/create', [\App\Http\Controllers\Instructor\QuestionBankController::class, 'create'])->name('question-banks.create');
+        Route::post('/question-banks', [\App\Http\Controllers\Instructor\QuestionBankController::class, 'store'])->name('question-banks.store');
+        Route::get('/question-banks/{questionBank}', [\App\Http\Controllers\Instructor\QuestionBankController::class, 'show'])->name('question-banks.show');
+        Route::get('/question-banks/{questionBank}/questions/create', [\App\Http\Controllers\Instructor\QuestionBankController::class, 'createQuestion'])->name('question-banks.questions.create');
+        Route::post('/question-banks/{questionBank}/questions', [\App\Http\Controllers\Instructor\QuestionBankController::class, 'storeQuestion'])->name('question-banks.questions.store');
         Route::get('/courses/{course}/lessons-list', function (\App\Models\AdvancedCourse $course) {
             if ($course->instructor_id !== auth()->id()) {
                 return response()->json([]);
