@@ -6,19 +6,24 @@ use App\Http\Controllers\DashboardController;
 
 // الصفحة الرئيسية (Home) - welcome.blade.php
 Route::get('/', function () {
-    $academicYears = \App\Models\AcademicYear::where('is_active', true)
-        ->withCount('advancedCourses')
-        ->orderBy('order')
-        ->get();
+    try {
+        $academicYears = \App\Models\AcademicYear::where('is_active', true)
+            ->withCount('advancedCourses')
+            ->orderBy('order')
+            ->get();
 
-    $featuredCourses = \App\Models\AdvancedCourse::where('is_active', true)
-        ->with(['academicYear'])
-        ->withCount('lessons')
-        ->orderBy('is_featured', 'desc')
-        ->orderBy('created_at', 'desc')
-        ->limit(6)
-        ->get();
-    
+        $featuredCourses = \App\Models\AdvancedCourse::where('is_active', true)
+            ->with(['academicYear'])
+            ->withCount('lessons')
+            ->orderBy('is_featured', 'desc')
+            ->orderBy('created_at', 'desc')
+            ->limit(6)
+            ->get();
+    } catch (\Throwable $e) {
+        $academicYears = collect();
+        $featuredCourses = collect();
+    }
+
     return view('welcome', compact('academicYears', 'featuredCourses'));
 })->name('home');
 

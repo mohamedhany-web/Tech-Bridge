@@ -11,6 +11,9 @@ return new class extends Migration
      */
     public function up(): void
     {
+        if (Schema::hasTable('loyalty_programs')) {
+            return;
+        }
         Schema::create('loyalty_programs', function (Blueprint $table) {
             $table->id();
             $table->timestamps();

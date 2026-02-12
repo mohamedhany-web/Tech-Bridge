@@ -1,3 +1,7 @@
+@php
+    $featuredCourses = $featuredCourses ?? collect();
+    $academicYears = $academicYears ?? collect();
+@endphp
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
     <head>
