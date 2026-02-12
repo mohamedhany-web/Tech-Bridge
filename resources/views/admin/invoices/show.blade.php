@@ -133,77 +133,78 @@
     .status-badge[data-status="overdue"],
     .status-badge[data-status="unpaid"],
     .status-badge[data-status="cancelled"] { background: rgba(248, 113, 113, 0.18) !important; color: #b91c1c !important; }
+    @media print {
+        body * { visibility: hidden; }
+        .invoice-print-wrapper, .invoice-print-wrapper * { visibility: visible; }
+        .invoice-print-wrapper { position: absolute; left: 0; top: 0; width: 100%; }
+        [data-print-hide] { display: none !important; }
+    }
 </style>
 @endpush
 
 @push('scripts')
 <script>
     window.printInvoice = function () {
-        const printArea = document.getElementById('invoice-print-area');
+        var printArea = document.getElementById('invoice-print-area');
         if (!printArea) return;
 
-        const printWindow = window.open('', '_blank', 'width=900,height=1200');
-        if (!printWindow) return;
+        var printDate = new Date().toLocaleString('ar-EG', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' });
+        var bodyHtml = '<div class="invoice-print-container">' +
+            '<header class="invoice-print-header">' +
+            '<div><p class="brand-label">Tech Bridge</p><h1>أكاديمية البرمجة</h1><p class="brand-meta">support@techbridge.academy · 0500 000 000</p></div>' +
+            '<div class="invoice-meta">' +
+            '<p><span>رقم الفاتورة:</span> #{{ $invoice->invoice_number }}</p>' +
+            '<p><span>تاريخ الإنشاء:</span> {{ $invoice->created_at->format('Y-m-d') }}</p>' +
+            '<p><span>تاريخ الطباعة:</span> ' + printDate + '</p>' +
+            '</div></header>' +
+            '<main class="invoice-print-body">' + printArea.innerHTML + '</main>' +
+            '<footer class="invoice-print-footer"><p>توقيع الإدارة</p><p class="signature-line"></p></footer>' +
+            '</div>';
 
-        const headContent = document.head.cloneNode(true);
-        const bodyContent = `
-            <div class="invoice-print-container">
-                <header class="invoice-print-header">
-                    <div>
-                        <p class="brand-label">Tech Bridge</p>
-                        <h1>أكاديمية البرمجة</h1>
-                        <p class="brand-meta">support@techbridge.academy · 0500 000 000</p>
-                    </div>
-                    <div class="invoice-meta">
-                        <p><span>رقم الفاتورة:</span> #${'{{ $invoice->invoice_number }}'}</p>
-                        <p><span>تاريخ الإنشاء:</span> {{ $invoice->created_at->format('Y-m-d') }}</p>
-                        <p><span>تاريخ الطباعة:</span> ${new Date().toLocaleString('ar-EG')}</p>
-                    </div>
-                </header>
-                <main class="invoice-print-body">
-                    ${printArea.innerHTML}
-                </main>
-                <footer class="invoice-print-footer">
-                    <p>توقيع الإدارة</p>
-                    <p class="signature-line"></p>
-                </footer>
-            </div>
-        `;
+        var printCss = '@page { size: A4 portrait; margin: 12mm 15mm; }' +
+            'body { font-family: system-ui, sans-serif; color: #0f172a; background: #fff; margin: 0; padding: 0; }' +
+            '.invoice-print-container { max-width: 760px; margin: 0 auto; padding: 16px; }' +
+            '.invoice-print-header { display: flex; justify-content: space-between; align-items: flex-start; gap: 24px; border-bottom: 1px solid #d8e3f0; padding-bottom: 16px; margin-bottom: 24px; }' +
+            '.invoice-meta p { margin: 0 0 4px 0; font-size: 12px; color: #334155; }' +
+            '.invoice-meta span { font-weight: 600; color: #0f172a; }' +
+            '.brand-label { text-transform: uppercase; letter-spacing: 4px; font-size: 11px; color: #64748b; margin: 0 0 4px 0; }' +
+            '.brand-meta { font-size: 12px; color: #475569; margin: 4px 0 0 0; }' +
+            '.invoice-print-body { display: flex; flex-direction: column; gap: 20px; }' +
+            '.invoice-print-body .print-card { border: 1px solid #d9e3f0; background: #fff; border-radius: 12px; padding: 18px 22px; }' +
+            '.invoice-print-body .print-strip { border: 1px solid #d9e3f0; background: #f8fafc; border-radius: 12px; padding: 18px 22px; }' +
+            '.invoice-print-body h3 { margin: 0 0 12px 0; font-size: 16px; }' +
+            '.invoice-print-body table { width: 100%; border-collapse: collapse; }' +
+            '.invoice-print-body thead { font-size: 11px; text-transform: uppercase; letter-spacing: 2px; color: #64748b; }' +
+            '.invoice-print-body tbody tr { border-bottom: 1px solid #eef2f7; }' +
+            '.invoice-print-body td, .invoice-print-body th { padding: 8px 0; font-size: 13px; }' +
+            '.invoice-print-footer { margin-top: 32px; padding-top: 16px; border-top: 1px solid #d8e3f0; font-size: 12px; color: #475569; }' +
+            '.signature-line { margin-top: 12px; width: 180px; height: 1px; background: #cbd5f5; }';
 
+        var fullDoc = '<!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="utf-8"><title>فاتورة {{ $invoice->invoice_number }}</title><style>' + printCss + '</style></head><body>' + bodyHtml + '</body></html>';
+
+        var printWindow = window.open('', '_blank');
+        if (!printWindow) {
+            document.body.classList.add('printing-invoice');
+            window.print();
+            document.body.classList.remove('printing-invoice');
+            return;
+        }
         printWindow.document.open();
-        printWindow.document.write('<!doctype html><html lang="ar" dir="rtl"></html>');
-        printWindow.document.head.innerHTML = headContent.innerHTML;
-        printWindow.document.body.innerHTML = bodyContent;
+        printWindow.document.write(fullDoc);
+        printWindow.document.close();
 
-        const style = printWindow.document.createElement('style');
-        style.innerHTML = `
-            @page { size: A4 portrait; margin: 12mm 15mm; }
-            body { font-family: 'IBM Plex Sans Arabic', system-ui, sans-serif; color: #0f172a; background: #fff; }
-            .invoice-print-container { max-width: 760px; margin: 0 auto; display: flex; flex-direction: column; min-height: 100vh; }
-            .invoice-print-header { display: flex; justify-content: space-between; align-items: flex-start; gap: 24px; border-bottom: 1px solid #d8e3f0; padding-bottom: 16px; margin-bottom: 24px; }
-            .invoice-meta p { margin: 0 0 4px 0; font-size: 12px; color: #334155; }
-            .invoice-meta span { font-weight: 600; color: #0f172a; }
-            .brand-label { text-transform: uppercase; letter-spacing: 4px; font-size: 11px; color: #64748b; margin-bottom: 4px; }
-            .brand-meta { font-size: 12px; color: #475569; margin-top: 4px; }
-            .invoice-print-body { flex: 1; display: flex; flex-direction: column; gap: 20px; }
-            .invoice-print-body .print-card { border: 1px solid #d9e3f0; background: #ffffff; border-radius: 12px; padding: 18px 22px; }
-            .invoice-print-body .print-strip { border: 1px solid #d9e3f0; background: #f8fafc; border-radius: 12px; padding: 18px 22px; }
-            .invoice-print-body h3 { margin-top: 0; margin-bottom: 12px; font-size: 16px; }
-            .invoice-print-body table { width: 100%; border-collapse: collapse; }
-            .invoice-print-body thead { font-size: 11px; text-transform: uppercase; letter-spacing: 2px; color: #64748b; }
-            .invoice-print-body tbody tr { border-bottom: 1px solid #eef2f7; }
-            .invoice-print-body td, .invoice-print-body th { padding: 8px 0; font-size: 13px; }
-            .invoice-print-footer { margin-top: 32px; padding-top: 16px; border-top: 1px solid #d8e3f0; text-align: left; font-size: 12px; color: #475569; }
-            .signature-line { margin-top: 12px; width: 180px; height: 1px; background: #cbd5f5; }
-        `;
-        printWindow.document.head.appendChild(style);
-
-        // wait for assets then print
-        setTimeout(() => {
-            printWindow.focus();
-            printWindow.print();
-            printWindow.close();
-        }, 500);
+        function doPrint() {
+            try {
+                printWindow.focus();
+                printWindow.print();
+            } catch (e) {}
+            setTimeout(function () { try { printWindow.close(); } catch (e) {} }, 800);
+        }
+        if (printWindow.document.readyState === 'complete') {
+            doPrint();
+        } else {
+            printWindow.onload = doPrint;
+        }
     };
 </script>
 @endpush

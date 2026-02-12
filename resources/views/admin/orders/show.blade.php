@@ -55,7 +55,10 @@
                                 <i class="fas fa-user ml-1"></i>
                                 الاسم
                             </label>
-                            <div class="text-base font-bold text-gray-900 dark:text-white">{{ $order->user->name ?? 'غير محدد' }}</div>
+                            <div class="text-base font-bold text-gray-900 dark:text-white">{{ $order->display_name }}</div>
+                            @if($order->isGuestOrder())
+                            <span class="inline-block mt-1 text-xs px-2 py-0.5 rounded bg-amber-100 text-amber-700 dark:bg-amber-500/20 dark:text-amber-200">طلب من الموقع العام</span>
+                            @endif
                         </div>
                         
                         <div class="p-4 bg-gradient-to-br from-sky-50 to-slate-50 dark:from-gray-700 dark:to-gray-700 rounded-xl border border-sky-100 dark:border-gray-600">
@@ -63,7 +66,7 @@
                                 <i class="fas fa-phone ml-1"></i>
                                 رقم الهاتف
                             </label>
-                            <div class="text-base font-bold text-gray-900 dark:text-white">{{ $order->user->phone ?? 'غير محدد' }}</div>
+                            <div class="text-base font-bold text-gray-900 dark:text-white">{{ $order->display_phone }}</div>
                         </div>
                         
                         <div class="p-4 bg-gradient-to-br from-sky-50 to-slate-50 dark:from-gray-700 dark:to-gray-700 rounded-xl border border-sky-100 dark:border-gray-600">
@@ -71,7 +74,7 @@
                                 <i class="fas fa-envelope ml-1"></i>
                                 البريد الإلكتروني
                             </label>
-                            <div class="text-base font-bold text-gray-900 dark:text-white break-all">{{ $order->user->email ?? 'غير محدد' }}</div>
+                            <div class="text-base font-bold text-gray-900 dark:text-white break-all">{{ $order->display_email }}</div>
                         </div>
                         
                         <div class="p-4 bg-gradient-to-br from-sky-50 to-slate-50 dark:from-gray-700 dark:to-gray-700 rounded-xl border border-sky-100 dark:border-gray-600">
@@ -79,7 +82,7 @@
                                 <i class="fas fa-calendar-check ml-1"></i>
                                 تاريخ التسجيل
                             </label>
-                            <div class="text-base font-bold text-gray-900 dark:text-white">{{ $order->user->created_at ? $order->user->created_at->format('d/m/Y') : 'غير محدد' }}</div>
+                            <div class="text-base font-bold text-gray-900 dark:text-white">{{ $order->user?->created_at?->format('d/m/Y') ?? '—' }}</div>
                         </div>
                     </div>
                 </div>
@@ -105,7 +108,7 @@
                         </div>
                         
                         <div class="flex-1">
-                            <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-2">{{ $order->course->title ?? 'كورس غير محدد' }}</h3>
+                            <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-2">{{ $order->course?->title ?? 'كورس غير محدد' }}</h3>
                             @if($order->course && ($order->course->academicYear || $order->course->academicSubject))
                             <div class="flex flex-wrap items-center gap-2 mb-3">
                                 @if($order->course->academicYear)

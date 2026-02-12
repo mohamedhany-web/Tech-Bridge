@@ -30,31 +30,25 @@ class LogActivityMiddleware
     }
 
     /**
-     * تسجيل النشاط حسب نوع الطلب
+     * تسجيل النشاط عند التغيير فقط (POST, PUT, PATCH, DELETE) — لا تسجيل لزيارات الصفحات (GET)
      */
     private function logActivity(Request $request, Response $response)
     {
-        $user = Auth::user();
         $method = $request->getMethod();
-        $path = $request->getPathInfo();
-        $route = $request->route();
-        
-        // تجاهل الطلبات التي لا تحتاج تسجيل
-        if ($this->shouldIgnore($path, $method)) {
+
+        // تسجيل فقط عند حدوث تغيير فعلي (إنشاء/تحديث/حذف) — لا تسجيل لطلبات GET (زيارة صفحات)
+        $loggableMethods = ['POST', 'PUT', 'PATCH', 'DELETE'];
+        if (!in_array($method, $loggableMethods)) {
             return;
         }
 
-        // تجاهل معظم طلبات GET إلا إذا كانت مهمة (مثل show, edit)
-        if ($method === 'GET' && $route) {
-            $routeName = $route->getName();
-            if ($routeName && (
-                strpos($routeName, 'show') === false && 
-                strpos($routeName, 'edit') === false &&
-                strpos($routeName, 'create') === false &&
-                strpos($routeName, 'index') === false
-            )) {
-                return; // تجاهل طلبات GET العادية
-            }
+        $user = Auth::user();
+        $path = $request->getPathInfo();
+        $route = $request->route();
+
+        // تجاهل الطلبات التي لا تحتاج تسجيل
+        if ($this->shouldIgnore($path, $method)) {
+            return;
         }
 
         $action = $this->determineAction($method, $path, $route);
@@ -110,6 +104,8 @@ class LogActivityMiddleware
             '/_debugbar',
             '/horizon',
             '/telescope',
+            '/login',   // تسجيل الدخول يُسجَّل عبر LogLoginActivity فقط
+            '/logout',  // تسجيل الخروج يُسجَّل عبر LogLogoutActivity فقط
         ];
 
         $ignorePatterns = [

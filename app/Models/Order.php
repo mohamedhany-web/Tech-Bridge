@@ -11,6 +11,9 @@ class Order extends Model
 
     protected $fillable = [
         'user_id',
+        'guest_name',
+        'guest_email',
+        'guest_phone',
         'advanced_course_id',
         'coupon_id',
         'original_amount',
@@ -122,5 +125,34 @@ class Order extends Model
         ];
 
         return $methods[$this->payment_method] ?? 'غير محدد';
+    }
+
+    public function isGuestOrder(): bool
+    {
+        return $this->user_id === null;
+    }
+
+    public function getDisplayNameAttribute(): string
+    {
+        if ($this->user_id && $this->user) {
+            return $this->user->name;
+        }
+        return $this->guest_name ?? '—';
+    }
+
+    public function getDisplayEmailAttribute(): string
+    {
+        if ($this->user_id && $this->user) {
+            return $this->user->email;
+        }
+        return $this->guest_email ?? '—';
+    }
+
+    public function getDisplayPhoneAttribute(): string
+    {
+        if ($this->user_id && $this->user) {
+            return $this->user->phone ?? '—';
+        }
+        return $this->guest_phone ?? '—';
     }
 }

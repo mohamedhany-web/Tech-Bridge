@@ -10,8 +10,16 @@ Route::get('/', function () {
         ->withCount('advancedCourses')
         ->orderBy('order')
         ->get();
+
+    $featuredCourses = \App\Models\AdvancedCourse::where('is_active', true)
+        ->with(['academicYear'])
+        ->withCount('lessons')
+        ->orderBy('is_featured', 'desc')
+        ->orderBy('created_at', 'desc')
+        ->limit(6)
+        ->get();
     
-    return view('welcome', compact('academicYears'));
+    return view('welcome', compact('academicYears', 'featuredCourses'));
 })->name('home');
 
 // Route لعرض الملفات من storage (بديل للرابط الرمزي على الاستضافة)
@@ -132,6 +140,10 @@ Route::get('/course/{id}', function ($id) {
     
     return view('course-show', compact('course', 'relatedCourses'));
 })->name('public.course.show');
+
+// صفحة طلب شراء الكورس (عامة - خارج المنصة)
+Route::get('/course/{id}/order', [\App\Http\Controllers\Public\OrderController::class, 'showOrderForm'])->name('public.course.order.form');
+Route::post('/course/{id}/order', [\App\Http\Controllers\Public\OrderController::class, 'store'])->name('public.course.order.store');
 
 // صفحة تفاصيل الباقة
 Route::get('/package/{slug}', function ($slug) {

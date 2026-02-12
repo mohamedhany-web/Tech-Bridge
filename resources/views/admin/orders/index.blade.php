@@ -136,12 +136,15 @@
                                 </span>
                                 <div class="space-y-2">
                                     <div>
-                                        <p class="text-sm font-semibold text-slate-900 dark:text-white">{{ $order->user->name }}</p>
-                                        <p class="text-xs text-slate-500 dark:text-slate-300">{{ $order->user->phone }}</p>
+                                        <p class="text-sm font-semibold text-slate-900 dark:text-white">{{ $order->display_name }}</p>
+                                        <p class="text-xs text-slate-500 dark:text-slate-300">{{ $order->display_phone }}</p>
+                                        @if($order->isGuestOrder())
+                                        <span class="inline-block mt-1 text-xs px-2 py-0.5 rounded bg-amber-100 text-amber-700 dark:bg-amber-500/20 dark:text-amber-200">طلب من الموقع العام</span>
+                                        @endif
                                     </div>
                                     <div class="space-y-1 text-xs text-slate-500 dark:text-slate-300">
-                                        <p class="font-medium text-slate-700 dark:text-slate-200">{{ $order->course->title }}</p>
-                                        <p>{{ optional($order->course->academicYear)->name }} • {{ optional($order->course->academicSubject)->name }}</p>
+                                        <p class="font-medium text-slate-700 dark:text-slate-200">{{ $order->course?->title ?? 'كورس محذوف أو غير محدد' }}</p>
+                                        <p>{{ optional($order->course)->academicYear?->name ?? '—' }} • {{ optional($order->course)->academicSubject?->name ?? '—' }}</p>
                                     </div>
                                     <div class="flex flex-wrap items-center gap-3 text-xs text-slate-500 dark:text-slate-300">
                                         <span class="inline-flex items-center gap-1">

@@ -30,15 +30,21 @@ class OrderController extends Controller
             $query->where('payment_method', $request->payment_method);
         }
 
-        // البحث
+        // البحث (مستخدم مسجل أو ضيف)
         if ($request->filled('search')) {
             $search = $request->search;
-            $query->whereHas('user', function($q) use ($search) {
-                $q->where('name', 'like', "%{$search}%")
-                  ->orWhere('email', 'like', "%{$search}%")
-                  ->orWhere('phone', 'like', "%{$search}%");
-            })->orWhereHas('course', function($q) use ($search) {
-                $q->where('title', 'like', "%{$search}%");
+            $query->where(function ($q) use ($search) {
+                $q->whereHas('user', function ($uq) use ($search) {
+                    $uq->where('name', 'like', "%{$search}%")
+                       ->orWhere('email', 'like', "%{$search}%")
+                       ->orWhere('phone', 'like', "%{$search}%");
+                })
+                ->orWhere('guest_name', 'like', "%{$search}%")
+                ->orWhere('guest_email', 'like', "%{$search}%")
+                ->orWhere('guest_phone', 'like', "%{$search}%")
+                ->orWhereHas('course', function ($cq) use ($search) {
+                    $cq->where('title', 'like', "%{$search}%");
+                });
             });
         }
 
@@ -80,6 +86,23 @@ class OrderController extends Controller
             // التحقق من عدم وجود فاتورة للطلب مسبقاً
             if ($order->invoice_id) {
                 return back()->with('error', 'تم إنشاء فاتورة لهذا الطلب مسبقاً');
+            }
+
+            // إذا كان طلب ضيف: إنشاء حساب طالب وربطه بالطلب
+            if ($order->isGuestOrder()) {
+                $existingUser = \App\Models\User::where('email', $order->guest_email)->first();
+                if ($existingUser) {
+                    $order->update(['user_id' => $existingUser->id]);
+                } else {
+                    $student = \App\Models\User::create([
+                        'name' => $order->guest_name,
+                        'email' => $order->guest_email,
+                        'phone' => $order->guest_phone,
+                        'password' => bcrypt(\Illuminate\Support\Str::random(12)),
+                        'role' => 'student',
+                    ]);
+                    $order->update(['user_id' => $student->id]);
+                }
             }
 
             // إنشاء الفاتورة تلقائياً
